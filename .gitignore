@@ -1,0 +1,31 @@
+# ---------- .NET ----------
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+*.user
+*.suo
+.vs/
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+appsettings.*.local.json
+
+# ---------- Node / Angular ----------
+node_modules/
+dist/
+.angular/
+npm-debug.log*
+yarn-error.log*
+frontend/**/coverage/
+
+# ---------- IDE / OS ----------
+.idea/
+.DS_Store
+Thumbs.db
+*.log
+
+# ---------- Docker ----------
+# keep Dockerfiles & compose tracked; ignore local overrides
+docker-compose.override.yml

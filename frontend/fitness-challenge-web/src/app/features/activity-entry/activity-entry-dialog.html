@@ -1,0 +1,112 @@
+<h2 mat-dialog-title>Log an activity</h2>
+
+@if (!currentUser()) {
+  <mat-dialog-content>
+    <div class="login-gate">
+      <mat-icon class="login-gate-icon">lock</mat-icon>
+      <p>You need to be logged in, and you can only log activities for yourself.</p>
+      <button mat-flat-button color="primary" (click)="openLogin()">
+        <mat-icon>login</mat-icon>
+        Log in
+      </button>
+    </div>
+  </mat-dialog-content>
+  <mat-dialog-actions align="end">
+    <button mat-button mat-dialog-close>Cancel</button>
+  </mat-dialog-actions>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <mat-dialog-content class="form-body">
+      <p class="subtitle">
+        Logging as <strong>{{ currentUser()!.firstName }} {{ currentUser()!.lastName }}</strong> · choose a
+        sport — the right metric field appears. The server computes the points.
+      </p>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Sport</mat-label>
+        <mat-select formControlName="kind">
+          @for (kind of kinds; track kind.value) {
+            <mat-option [value]="kind.value">{{ kind.label }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Date &amp; time</mat-label>
+        <input
+          matInput
+          type="datetime-local"
+          [min]="minDatetimeLocal"
+          [max]="maxDatetimeLocal"
+          formControlName="datetime"
+        />
+        @if (form.controls.datetime.touched && form.controls.datetime.invalid) {
+          @if (form.controls.datetime.hasError('minDatetime')) {
+            <mat-error>Date must be within the last year.</mat-error>
+          } @else if (form.controls.datetime.hasError('maxDatetime')) {
+            <mat-error>Date can't be in the future.</mat-error>
+          } @else {
+            <mat-error>Date &amp; time is required.</mat-error>
+          }
+        }
+      </mat-form-field>
+
+      @switch (selectedMetric()) {
+        @case ('distance') {
+          <mat-form-field appearance="outline">
+            <mat-label>Distance</mat-label>
+            <input matInput type="number" [min]="selectedMin()" [max]="selectedMax()" step="0.001" formControlName="distance" />
+            <span matTextSuffix>km</span>
+            @if (form.controls.distance.touched && form.controls.distance.invalid) {
+              @if (form.controls.distance.hasError('max')) {
+                <mat-error>Distance must be at most {{ selectedMax() }} km.</mat-error>
+              } @else if (form.controls.distance.hasError('min')) {
+                <mat-error>Distance must be at least {{ selectedMin() }} km (worth 1 point).</mat-error>
+              } @else {
+                <mat-error>Enter a distance.</mat-error>
+              }
+            }
+          </mat-form-field>
+        }
+        @case ('duration') {
+          <mat-form-field appearance="outline">
+            <mat-label>Duration</mat-label>
+            <input matInput type="text" placeholder="45:20" formControlName="duration" />
+            <span matTextSuffix>mm:ss</span>
+            @if (form.controls.duration.touched && form.controls.duration.invalid) {
+              @if (form.controls.duration.hasError('maxDuration')) {
+                <mat-error>Duration must be at most {{ selectedMax() / 3600 }} hours ({{ selectedMax() / 60 }}:00).</mat-error>
+              } @else if (form.controls.duration.hasError('minDuration')) {
+                <mat-error>Duration must be at least 1 minute (1:00, worth 1 point).</mat-error>
+              } @else {
+                <mat-error>Use mm:ss format (seconds 00–59).</mat-error>
+              }
+            }
+          </mat-form-field>
+        }
+        @case ('steps') {
+          <mat-form-field appearance="outline">
+            <mat-label>Steps</mat-label>
+            <input matInput type="number" [min]="selectedMin()" [max]="selectedMax()" step="1" formControlName="steps" />
+            @if (form.controls.steps.touched && form.controls.steps.invalid) {
+              @if (form.controls.steps.hasError('max')) {
+                <mat-error>Enter at most {{ selectedMax() }} steps.</mat-error>
+              } @else if (form.controls.steps.hasError('min')) {
+                <mat-error>Enter at least {{ selectedMin() }} steps (worth 1 point).</mat-error>
+              } @else {
+                <mat-error>Enter a step count.</mat-error>
+              }
+            }
+          </mat-form-field>
+        }
+      }
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button type="button" mat-dialog-close>Cancel</button>
+      <button mat-flat-button color="primary" type="submit" [disabled]="submitting()">
+        {{ submitting() ? 'Logging…' : 'Log activity' }}
+      </button>
+    </mat-dialog-actions>
+  </form>
+}

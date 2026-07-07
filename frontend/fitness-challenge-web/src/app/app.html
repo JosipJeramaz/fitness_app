@@ -1,0 +1,43 @@
+<mat-toolbar class="app-bar">
+  <a routerLink="/leaderboard" class="brand">
+    <mat-icon>exercise</mat-icon>
+    <span class="brand-name">Fitness Challenge</span>
+  </a>
+
+  <nav class="nav-links">
+    <a mat-button routerLink="/leaderboard" routerLinkActive="active-link">
+      <mat-icon>leaderboard</mat-icon>
+      <span class="nav-label">Leaderboard</span>
+    </a>
+    <button mat-button (click)="openLogActivity()">
+      <mat-icon>add_circle</mat-icon>
+      <span class="nav-label">Log activity</span>
+    </button>
+  </nav>
+
+  <span class="spacer"></span>
+
+  @if (currentUser(); as user) {
+    <a mat-button class="current-user" [routerLink]="['/dashboard', user.id]" matTooltip="Open my dashboard">
+      <mat-icon>account_circle</mat-icon>
+      <span class="nav-label">{{ user.firstName }} {{ user.lastName }}</span>
+    </a>
+    <button mat-button (click)="logout()">
+      <mat-icon>logout</mat-icon>
+      <span class="nav-label">Log out</span>
+    </button>
+  } @else {
+    <button mat-button (click)="openLogin()">
+      <mat-icon>login</mat-icon>
+      <span class="nav-label">Log in</span>
+    </button>
+    <button mat-flat-button color="primary" class="register-btn" (click)="openRegistration()">
+      <mat-icon>person_add</mat-icon>
+      <span class="nav-label">Register</span>
+    </button>
+  }
+</mat-toolbar>
+
+<main class="app-content">
+  <router-outlet></router-outlet>
+</main>

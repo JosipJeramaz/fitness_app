@@ -1,0 +1,31 @@
+services:
+  api:
+    build:
+      context: ./backend
+      dockerfile: FitnessChallenge.Api/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ASPNETCORE_URLS: http://+:8080
+      ConnectionStrings__Default: Data Source=/data/fitness-challenge.db
+      # Seed demo users + activities on first start so the leaderboard is instantly populated.
+      Seed__Enabled: "true"
+      # Demo runs with auth ON: logging an activity requires login and is self-only (401/403 otherwise).
+      # Flip to "false" for a spec-literal open core (see README).
+      Auth__Enabled: "true"
+    volumes:
+      - api-data:/data
+    ports:
+      # Exposes Swagger directly at http://localhost:5080/swagger
+      - "5080:8080"
+
+  web:
+    build:
+      context: ./frontend/fitness-challenge-web
+    depends_on:
+      - api
+    ports:
+      # The SPA is served here; it proxies /api to the api container.
+      - "4200:80"
+
+volumes:
+  api-data:
